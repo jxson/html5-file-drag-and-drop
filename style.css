@@ -1,0 +1,16 @@
+body {
+  text-align: center;
+  padding: 1.125em;
+}
+
+#dropbox {
+  width: 50%;
+  padding: 1.125em;
+  margin: 0 auto;
+  border: 4px dotted grey;
+}
+
+#preview {
+  margin: 1.125em;
+  border: 1px solid pink;
+}
