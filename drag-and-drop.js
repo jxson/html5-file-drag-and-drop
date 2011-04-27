@@ -1,4 +1,4 @@
-var dropHandler = {
+var dropListener = {
   handleEvent: function(event){
     if (event.type === 'dragenter') { this.dragenter(event); }
     if (event.type === 'dragexit') { this.dragexit(event); }
@@ -36,6 +36,8 @@ var dropHandler = {
     var files = event.dataTransfer.files,
         file = files[0];
 
+    console.debug(files)
+
     if (files.length) {
       document.getElementById('droplabel').innerHTML = 'Processing ' + file.name;
 
@@ -58,7 +60,7 @@ var dropHandler = {
 
 var dropbox = document.getElementById("dropbox")
 
-dropbox.addEventListener("dragenter", dropHandler, false);
-dropbox.addEventListener("dragexit", dropHandler, false);
-dropbox.addEventListener("dragover", dropHandler, false);
-dropbox.addEventListener("drop", dropHandler, false);
+dropbox.addEventListener("dragenter", dropListener, false);
+dropbox.addEventListener("dragexit", dropListener, false);
+dropbox.addEventListener("dragover", dropListener, false);
+dropbox.addEventListener("drop", dropListener, false);
