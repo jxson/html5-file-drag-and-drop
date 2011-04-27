@@ -32,7 +32,28 @@ var dropHandler = {
     event.stopPropagation();
 
     console.debug('drop')
+
+    var files = event.dataTransfer.files,
+        file = files[0];
+
+    if (files.length) {
+      document.getElementById('droplabel').innerHTML = 'Processing ' + file.name;
+
+      var reader = new FileReader();
+
+      reader.onloadend = this.handleReaderLoadEnd;
+
+      reader.readAsDataURL(file);
+    }
   },
+
+  handleReaderLoadEnd: function(event){
+    var img = document.getElementById("preview");
+
+    console.debug(event)
+
+    img.src = event.target.result;
+  }
 };
 
 var dropbox = document.getElementById("dropbox")
