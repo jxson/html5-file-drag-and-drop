@@ -36,14 +36,41 @@ var dropListener = {
     var files = event.dataTransfer.files,
         file = files[0];
 
-    console.debug(files)
-
     if (files.length) {
       document.getElementById('droplabel').innerHTML = 'Processing ' + file.name;
 
       var reader = new FileReader();
 
+      // console.debug(file.type.match('image.*'))
+
+      // Called when the read operation is aborted.
+      reader.onabort = function(){
+        console.debug('onabort')
+      }
+
+      // Called when an error occurs.
+      reader.onerror = function(){
+        console.debug('onerror')
+      }
+
+      // Called when the read operation is successfully completed.
+      reader.onload = function(){
+        console.debug('onload')
+      }
+
+      // Called when the read is completed, whether successful or not. This is
+      // called after either onload or onerror.
       reader.onloadend = this.handleReaderLoadEnd;
+
+      // Called when reading the data is about to begin.
+      reader.onloadstart = function(){
+        console.debug('onloadstart')
+      }
+
+      // Called periodically while the data is being read.
+      reader.onprogress = function(){
+        console.debug('.')
+      }
 
       reader.readAsDataURL(file);
     }
@@ -52,7 +79,7 @@ var dropListener = {
   handleReaderLoadEnd: function(event){
     var img = document.getElementById("preview");
 
-    console.debug(event)
+    console.debug(event.target.error.code)
 
     img.src = event.target.result;
   }
