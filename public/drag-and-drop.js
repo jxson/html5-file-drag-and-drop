@@ -49,7 +49,8 @@ var dropListener = {
       }
 
       // Called when an error occurs.
-      reader.onerror = function(){
+      reader.onerror = function(event){
+        console.debug(event)
         console.debug('onerror')
       }
 
@@ -78,8 +79,6 @@ var dropListener = {
 
   handleReaderLoadEnd: function(event){
     var img = document.getElementById("preview");
-
-    console.debug(event.target.error.code)
 
     img.src = event.target.result;
   }

@@ -11,6 +11,7 @@ body {
 }
 
 #preview {
-  margin: 1.125em;
+  display: block;
+  margin: 1.125em auto;
   border: 1px solid pink;
 }
