@@ -79,8 +79,6 @@ var dropListener = {
   handleReaderLoadEnd: function(event){
     var img = document.getElementById("preview");
 
-    console.debug(event.target.error.code)
-
     img.src = event.target.result;
   }
 };
