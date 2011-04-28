@@ -16,6 +16,3 @@ If you don't want to mess with all that ruby stuff you can always copy the publi
 
 [FileReader] https://developer.mozilla.org/en/DOM/FileReader "FileReader"
 [Sinatra] http://www.sinatrarb.com/ "Sinatra"
-[FileAPI] http://www.w3.org/TR/FileAPI/ "File API"
-[HTML5 Rocks] http://www.html5rocks.com/tutorials/file/dndfiles/#toc-reading-files "Reading local files in JavaScript"
-[QuirksMode] http://www.quirksmode.org/blog/archives/2009/09/the_html5_drag.html
