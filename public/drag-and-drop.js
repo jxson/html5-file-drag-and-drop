@@ -36,11 +36,11 @@
 
 // Set a reference the the `div#dropbox` element using `document.getElementById`. Since this example is fairly simple and needs access to the normal DOM element there is an intentional avoidance of [jQuery](), however you will most likely be using something like jQuery or [Zepto]() wherever you are looking to implement drag and drop. Keep in mind:
 //
-//     var dropbox = document.getElementById('dropbox');
+//      var dropbox = document.getElementById('dropbox');
 //
 // Is eqiuivelent to:
 //
-//    var dropbox =  $('#dropbox')[0];
+//      var dropbox =  $('#dropbox')[0];
 //
 // Notice that using the query above requires the zeroth element from the jQuery object. This is so that the node can be acted on directly with `element.addEventListener`.
 var dropbox = document.getElementById('dropbox');
@@ -55,66 +55,80 @@ dropbox.addEventListener('drop', dropListener, false);
 
 // ### Why use an EventListener object?
 
-// use `element.addEventListener` to hook into the Drag and Drop events on the `div#dropbox` element. The `dropListener` being passed in is an [EventListener][http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener] object. It is good practice when needing to keep state between multiple events like this to use an EventListener object rather than using functions directly. Thouch events are another good example of where the EventListener objects are extremely helpful...
-
-
-// # dropListener
+// It is good practice when needing to keep state and provide encapsulation between multiple events to use the `EventListener` interface rather than adding functions directly. This also helps to simplify the mental model in a way that allows one to think about the listener as a complete feature even though it might be spread out across numerous events. This wouldn't be as useful where you only care about single click events etc., but in the case of drag and drop it works out nicely. Touch events are another place where the `EventListener` object can come in really handy.
 var dropListener = {
-  // Since `dropListener` is an implementation of the EventListener interface it is required to have a `handleEvent` method. This method is called whenerver an event occurs that the `dropListener` was registered for. The `handleEvent` dispatches the event to the proper method on the `dropListener`.
+  // Since `dropListener` is an implementation of the EventListener interface it is required to have a `handleEvent` method. This method is called whenever an event occurs that the `dropListener` was registered for. The `dropListener.handleEvent` dispatches the event to the proper method on the `dropListener` object.
   handleEvent: function(event){
-    if (event.type === 'dragenter') { this.dragenter(event); }
-    if (event.type === 'dragexit') { this.dragexit(event); }
-    if (event.type === 'dragover') { this.dragover(event); }
-    if (event.type === 'drop') { this.drop(event); }
+    if (event.type === 'dragenter') { this.onDragEnter(event); }
+    if (event.type === 'dragexit') { this.onDragExit(event); }
+    if (event.type === 'dragover') { this.onDragOver(event); }
+    if (event.type === 'drop') { this.onDrop(event); }
   },
 
-  // `dragenter` fires when something is dragged onto the `div#dropbox` element, for this example this handler is only preventing the event from propagating.
-  dragenter: function(event){
+  // `onDragEnter` fires when something is dragged onto the `div#dropbox` element, for this example this handler is only preventing the event from propagating.
+  onDragEnter: function(event){
     event.preventDefault();
     event.stopPropagation();
   },
 
-  // `dragexit` fires when something has been moved away from the `div#dropbox` element during a drag, like the `dragenter` handler `dragexit` is preventing the event from propagating.
-  dragexit: function(event){
+  // `onDragExit` fires when something has been moved away from the `div#dropbox` element during a drag, like the `onDragEnter` handler `onDragExit` is preventing the event from propagating.
+  onDragExit: function(event){
     event.preventDefault();
     event.stopPropagation();
   },
 
-  // `dragover` fires when a drag is held over the `div#dropbox` element, be careful with adding any extra stuff to this event handler as this _event will fire numerous times during a drag_. Like the `dragenter` and `dragexit` this handler is stopping the event from propagating.
-  dragover: function(event){
+  // `onDragOver` fires when a drag is held over the `div#dropbox` element, be careful with adding any extra stuff to this event handler as this _event will fire numerous times during a drag_. Like the `onDragEnter` and `onDragExit` this handler is stopping the event from propagating.
+  onDragOver: function(event){
     event.preventDefault();
     event.stopPropagation();
   },
 
-  // `drop` is the meat of this example. Initially the handler is stopping the event from propagating, after that it will proceed with processing whatever files were dropped onto the `div#dropbox` element.
+  // `onDrop` is the meat of this example. Initially the handler is stopping the event from propagating, after that it will proceed with processing whatever files were dropped onto the `div#dropbox` element.
 
-  // The event passed into the `drop` handler will have a `DataTransfer` object on it. The `DataTransfer` object has a `FileList` attached to it that allows access to the files dropped by the user.
+  // The `drop` event handler will have a `DataTransfer` object on its event which has a `FileList` attached to it. The `FileList` will allow access to the files dropped by the user.
 
-  // If there are any files the handler will let the user know that it's processing and create a new `FileReader` object.
-
-  // The [`FileReader`][https://developer.mozilla.org/en/DOM/FileReader] object has several event handlers that can be set, since this is just a basic example the only event handler being used is onloadend
-  drop: function(event){
+  // If there are any files the `file` variable will be populated with the dropped file by grabbing the zeroth element in the event's `FileList`, the `span#droplabel` will be updated to let the user know that the image is processing and a call to `dropListener.processImage` will be made.
+  onDrop: function(event){
     event.preventDefault();
     event.stopPropagation();
 
     var files = event.dataTransfer.files,
-        file = files[0];
+        file = files;
 
     if (files.length) {
+      file = files[0];
+
       document.getElementById('droplabel').innerHTML = 'Processing ' +
         file.name;
 
-      var reader = new FileReader();
-
-      // Called when the read is completed, whether successful or not. This is
-      // called after either onload or onerror.
-      reader.onloadend = this.handleReaderLoadEnd;
-
-      reader.readAsDataURL(file);
+      this.processImage(file);
     }
   },
 
-  handleReaderLoadEnd: function(event){
+  // `processImage` will let the user know there is a problem and return immediately if the file is not an image.
+
+  // If the file is an image a new `FileReader` object will be created. The `FileReader` object has several event handlers that can be set, since this is just a basic example the only event handler being set is `onloadend`. In your implementation it would be a good idea to also add `onerror` and `onprogress`, check out the MDC docs for details on the these and other events.
+
+  // `reader.onloadend` is set to `dropHandler.onReaderLoadEnd` which will be called when reading the file is completed, whether successful or not.
+
+  // `reader.readAsDataURL` will start the file reading process when it is finished `reader.onReaderLoadEnd` will be called with a data uri populated in the event's target result.
+  processImage: function(file){
+    if (! file.type.match('image.*')) {
+      document.getElementById('droplabel').innerHTML = file.name +
+        ' is not an image.';
+
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onloadend = this.onReaderLoadEnd;
+
+    reader.readAsDataURL(file);
+  },
+
+  // `onReaderLoadEnd` will update the `img#preview`'s `src` attribute to `event.target.result` this will show the image that user dropped onto the `div#dropbox`.
+  onReaderLoadEnd: function(event){
     var img = document.getElementById("preview");
 
     img.src = event.target.result;
