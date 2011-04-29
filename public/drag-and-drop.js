@@ -1,10 +1,26 @@
-// Searching Google good examples of processing files with HTML5's drag and drop proved to be more difficult than I anticipated. This example exists to provide both a solid starting point for any other nerds looking to implement drag and drop as well as provide detailed contextual documentation for working with drag and drop events, the JavaScript `FileList` collection, and JavaScript `FileReader` objects.
+// Searching Google for good examples of processing files with HTML5's drag
+// and drop proved to be more difficult than I anticipated. This example
+// exists to provide both a solid starting point for any other nerds looking
+// to implement drag and drop as well as provide detailed contextual
+// documentation for working with drag and drop events, the JavaScript
+// `FileList` collection, and the JavaScript `FileReader` objects.
 
+// This example's source is hosted on
+// [github](https://github.com/jxson/html5-file-drag-and-drop), feel free to
+// send me any pull requests or
+// [report any
+// issues](https://github.com/jxson/html5-file-drag-and-drop/issues).
 
- //
- // I thought it would be nice to put this out there for others to use as a good starting point. **Currently this example only works on Google Chrome**
-//
-// This script expects a tiny bit of markup to subject it's event listening and DOM manipulation on:
+// ## Caveats
+
+// * Currently this example only works with **Google Chrome**
+
+// # The Markup
+
+// This script expects a tiny bit of markup to subject to it's event listening
+// and DOM manipulation (for the entire page take a look at
+// [this project's](https://github.com/jxson/html5-file-drag-and-drop)
+// index.html):
 //
 //     <div id="dropbox">
 //       <span id="droplabel">Drop file here...</span>
@@ -12,21 +28,35 @@
 //
 //     <img id="preview" alt="[ preview will display here ]" />
 //
-// (You can see the full example in [this project's][] index.html for the full structure)
+// The `div#dropbox` element will have our event listeners added to it and the
+// `img#preview` element will have it's source updated to whatever image gets
+// dropped onto the `div#dropbox`.
+
+// # The JavaScript
+
+// Set a reference the the `div#dropbox` element using `document.getElementById`. Since this example is fairly simple and needs access to the normal DOM element there is an intentional avoidance of [jQuery](), however you will most likely be using something like jQuery or [Zepto]() wherever you are looking to implement drag and drop. Keep in mind:
 //
-// The `div#dropbox` element will have our event listeners added to it and the `img#preview` element will have it's source updated to whatever image gets dropped onto the `div#dropbox`.
-
-
-// Use`document.getElementById` to get the elements. **Note** for this basic example there is no need to load all of jQuery to do basic queries, however if you are using jQuery this code is eqiuivelent to `var dropbox =  $('#dropbox')[0];` Notice we would be getting the zeroth element from the jQuery array in this case, doing this allows the use of `element.addEventListener`
+//     var dropbox = document.getElementById('dropbox');
+//
+// Is eqiuivelent to:
+//
+//    var dropbox =  $('#dropbox')[0];
+//
+// Notice that using the query above requires the zeroth element from the jQuery object. This is so that the node can be acted on directly with `element.addEventListener`.
 var dropbox = document.getElementById('dropbox');
 
-// # Using an EventListener object
+// ## Adding drag and drop event listeners
 
-// use `element.addEventListener` to hook into the Drag and Drop events on the `div#dropbox` element. The `dropListener` being passed in is an [EventListener][http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener] object. It is good practice when needing to keep state between multiple events like this to use an EventListener object rather than using functions directly. Thouch events are another good example of where the EventListener objects are extremely helpful...
+// Use `dropbox.addEventListener` to add event handlers to the necessary drag and drop events on the `div#dropbox` element.
 dropbox.addEventListener('dragenter', dropListener, false);
 dropbox.addEventListener('dragexit', dropListener, false);
 dropbox.addEventListener('dragover', dropListener, false);
 dropbox.addEventListener('drop', dropListener, false);
+
+// ### Why use an EventListener object?
+
+// use `element.addEventListener` to hook into the Drag and Drop events on the `div#dropbox` element. The `dropListener` being passed in is an [EventListener][http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener] object. It is good practice when needing to keep state between multiple events like this to use an EventListener object rather than using functions directly. Thouch events are another good example of where the EventListener objects are extremely helpful...
+
 
 // # dropListener
 var dropListener = {
