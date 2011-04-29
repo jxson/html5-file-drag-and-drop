@@ -1,1 +1,154 @@
-My GitHub Page
+<!DOCTYPE html>  <html> <head>   <title>drag-and-drop.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               drag-and-drop.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Searching Google for good examples of processing files with HTML5's drag
+and drop proved to be more difficult than I anticipated. This example
+exists to provide both a solid starting point for any other nerds looking
+to implement drag and drop as well as provide detailed contextual
+documentation for working with drag and drop events, the JavaScript
+<code>FileList</code> collection, and the JavaScript <code>FileReader</code> objects.</p>
+
+<p>This example's source is hosted on
+<a href="https://github.com/jxson/html5-file-drag-and-drop">github</a>, feel free to
+send me any pull requests or
+<a href="https://github.com/jxson/html5-file-drag-and-drop/issues">report any
+issues</a>.</p>
+
+<h2>Caveats</h2>
+
+<ul>
+<li>Currently this example only works with <strong>Google Chrome</strong></li>
+</ul>
+
+<h2>Reference</h2>
+
+<ul>
+<li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dnd.html#dnd">WHATWG Drag and drop spec</a></li>
+<li><a href="http://www.w3.org/TR/FileAPI/">W3C <code>File</code> API</a>
+<ul><li><a href="http://www.w3.org/TR/file-upload/#dfn-filereader"><code>FileReader</code> API</a></li></ul></li>
+<li><a href="https://developer.mozilla.org/en/DOM/FileReader">MDC <code>FileReader</code> documentation</a></li>
+<li><a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener">W3C <code>EventListener</code> interface</a></li>
+<li>Tutorials and rants that helped put this example together:
+<ul><li><a href="http://www.html5rocks.com/tutorials/file/dndfiles/#toc-reading-files">HTML5 Rocks - Reading local files in JavaScript</a></li>
+<li><a href="http://www.quirksmode.org/blog/archives/2009/09/the_html5_drag.html">PPk's - The HTML5 drag and drop disaster</a></li>
+<li><a href="http://www.thebuzzmedia.com/html5-drag-and-drop-and-file-api-tutorial/">Riyad Kalla's - HTML5 Drag and Drop and File API Tutorial (I couldn't get this one to work but it served as a great reference)</a></li></ul></li>
+</ul>
+
+<h1>The Markup</h1>
+
+<p>This script expects a tiny bit of markup to subject to it's event listening
+and DOM manipulation (for the entire page take a look at
+<a href="https://github.com/jxson/html5-file-drag-and-drop">this project's</a>
+index.html):</p>
+
+<pre><code>&lt;div id="dropbox"&gt;
+  &lt;span id="droplabel"&gt;Drop file here...&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;img id="preview" alt="[ preview will display here ]" /&gt;
+</code></pre>
+
+<p>The <code>div#dropbox</code> element will have our event listeners added to it and the
+<code>img#preview</code> element will have it's source updated to whatever image gets
+dropped onto the <code>div#dropbox</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h1>The JavaScript</h1>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Set a reference the the <code>div#dropbox</code> element using
+<code>document.getElementById</code>. Since this example is fairly simple and needs
+access to the normal DOM element there is an intentional avoidance of
+<a href="http://jquery.com/">jQuery</a>, however you will most likely be using
+something like jQuery or <a href="http://zeptojs.com/">Zepto</a> wherever you are
+looking to implement drag and drop. Keep in mind:</p>
+
+<pre><code> var dropbox = document.getElementById('dropbox');
+</code></pre>
+
+<p>Is eqiuivelent to:</p>
+
+<pre><code> var dropbox =  $('#dropbox')[0];
+</code></pre>
+
+<p>Notice that using the query above requires the zeroth element from the
+jQuery object. This is so that the node can be acted on directly with
+<code>element.addEventListener</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">dropbox</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;dropbox&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h1>Using an EventListener object</h1>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>It is good practice when needing to keep state and provide encapsulation
+between multiple events to use the <code>EventListener</code> interface rather than
+adding functions directly
+(<a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener">take a look at the spec for it</a>).
+This also helps to simplify the mental model in
+a way that allows one to think about the listener as a complete feature
+even though it might be spread out across numerous events. This wouldn't be
+as useful where you only care about single click events etc., but in the
+case of drag and drop it works out nicely. Touch events are another place
+where the <code>EventListener</code> object can come in really handy.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">dropListener</span> <span class="o">=</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Since <code>dropListener</code> is an implementation of the EventListener interface
+it is required to have a <code>handleEvent</code> method. This method is called
+whenever an event occurs that the <code>dropListener</code> was registered for. The
+<code>dropListener.handleEvent</code> dispatches the event to the proper method on
+the <code>dropListener</code> object.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">handleEvent</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;dragenter&#39;</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">onDragEnter</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;dragexit&#39;</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">onDragExit</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;dragover&#39;</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">onDragOver</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="s1">&#39;drop&#39;</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">onDragDrop</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span> <span class="p">}</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p><code>dropListener.onDragEnter</code> fires when something is dragged onto the
+<code>div#dropbox</code> element, for this example this handler is only stopping
+the event from propagating.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">onDragEnter</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;enter&#39;</span><span class="p">)</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p><code>dropListener.onDragExit</code> fires when something has been moved away from
+the <code>div#dropbox</code> element during a drag, like the
+<code>dropListener.onDragEnter</code> handler <code>dropListener.onDragExit</code> is stopping
+the event from propagating.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">onDragExit</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">();</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p><code>dropListener.onDragOver</code> fires when a drag is held over the
+<code>div#dropbox</code> element, be careful with adding any extra stuff to this
+event handler as <strong>this event will fire numerous times during a drag</strong>.
+Like the <code>dropListener.onDragEnter</code> and <code>dropListener.onDragExit</code>
+this handler is stopping the event from propagating.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">onDragOver</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">();</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p><code>dropListener.onDragDrop</code> is the meat of this example. Initially the
+handler is stopping the event from propagating, after that it will
+proceed with processing whatever files were dropped onto the
+<code>div#dropbox</code> element.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">onDragDrop</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">stopPropagation</span><span class="p">();</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>The <code>drop</code> event handler will have a <code>DataTransfer</code> object on its event
+which has a <code>FileList</code> attached to it. The <code>FileList</code> will allow access
+to the files dropped by the user.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">files</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">dataTransfer</span><span class="p">.</span><span class="nx">files</span><span class="p">,</span>
+        <span class="nx">file</span> <span class="o">=</span> <span class="nx">files</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>If there are any files the <code>file</code> variable will be populated with the
+zeroth element in the event's <code>FileList</code>, the <code>span#droplabel</code> will be
+updated to let the user know that the image is processing, and a call
+to <code>dropListener.processImage</code> will be made.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">file</span> <span class="o">=</span> <span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+      <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;droplabel&#39;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="s1">&#39;Processing &#39;</span> <span class="o">+</span>
+        <span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">processImage</span><span class="p">(</span><span class="nx">file</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p><code>processImage</code> will let the user know there is a problem and return
+immediately if the file is not an image.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">processImage</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">file</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span> <span class="nx">file</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="s1">&#39;image.*&#39;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;droplabel&#39;</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">file</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span>
+        <span class="s1">&#39; is not an image.&#39;</span><span class="p">;</span>
+
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>If the file is an image a new <code>FileReader</code> object will be created. The
+<code>FileReader</code> object has several event handlers that can be set (<a href="https://developer.mozilla.org/en/DOM/FileReader#Event_handlers">take a
+look at the MDC docs for the FileReader Event handlers</a>),
+since this is just a basic example the only event handler being set is
+<code>onloadend</code>. In your implementation it would be a good idea to also add
+<code>onerror</code> and <code>onprogress</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="kd">var</span> <span class="nx">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FileReader</span><span class="p">();</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p><code>reader.onloadend</code> is set to <code>dropHandler.onReaderLoadEnd</code> which will
+be called when reading the file is completed, whether successful or
+not.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">reader</span><span class="p">.</span><span class="nx">onloadend</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">onReaderLoadEnd</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p><code>reader.readAsDataURL</code> will start the file reading process, when it is
+finished <code>reader.onReaderLoadEnd</code> will be called with a data uri
+populated in the event's target result.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">reader</span><span class="p">.</span><span class="nx">readAsDataURL</span><span class="p">(</span><span class="nx">file</span><span class="p">);</span>
+  <span class="p">},</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p><code>onReaderLoadEnd</code> will update the <code>img#preview</code>'s <code>src</code> attribute to
+<code>event.target.result</code> this will show the image that user dropped onto the
+<code>div#dropbox</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">onReaderLoadEnd</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">img</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;preview&quot;</span><span class="p">);</span>
+
+    <span class="nx">img</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <h2>Adding drag and drop event listeners</h2>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>Use <code>dropbox.addEventListener</code> to add event handlers to the necessary drag
+and drop events on the <code>div#dropbox</code> element. The second argument being
+passed to <code>dropbox.addEventListener</code> in every case is a single
+<code>EventListener</code> object, this object uses the <code>EventListener</code> interface to
+dispatch the different events to the proper methods on the object.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">dropbox</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;dragenter&#39;</span><span class="p">,</span> <span class="nx">dropListener</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="nx">dropbox</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;dragexit&#39;</span><span class="p">,</span> <span class="nx">dropListener</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="nx">dropbox</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;dragover&#39;</span><span class="p">,</span> <span class="nx">dropListener</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+<span class="nx">dropbox</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;drop&#39;</span><span class="p">,</span> <span class="nx">dropListener</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>Piece of cake right?</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
