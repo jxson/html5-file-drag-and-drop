@@ -64,19 +64,7 @@
 // `element.addEventListener`.
 var dropbox = document.getElementById('dropbox');
 
-// ## Adding drag and drop event listeners
-
-// Use `dropbox.addEventListener` to add event handlers to the necessary drag
-// and drop events on the `div#dropbox` element. The second argument being
-// passed to `dropbox.addEventListener` in every case is a single
-// `EventListener` object, this object uses the `EventListener` interface to
-// dispatch the different events to the proper methods on the object.
-dropbox.addEventListener('dragenter', dropListener, false);
-dropbox.addEventListener('dragexit', dropListener, false);
-dropbox.addEventListener('dragover', dropListener, false);
-dropbox.addEventListener('drop', dropListener, false);
-
-// ### Why use an EventListener object?
+// # Using an EventListener object
 
 // It is good practice when needing to keep state and provide encapsulation
 // between multiple events to use the `EventListener` interface rather than
@@ -98,7 +86,7 @@ var dropListener = {
     if (event.type === 'dragenter') { this.onDragEnter(event); }
     if (event.type === 'dragexit') { this.onDragExit(event); }
     if (event.type === 'dragover') { this.onDragOver(event); }
-    if (event.type === 'drop') { this.onDrop(event); }
+    if (event.type === 'drop') { this.onDragDrop(event); }
   },
 
   // `dropListener.onDragEnter` fires when something is dragged onto the
@@ -107,6 +95,7 @@ var dropListener = {
   onDragEnter: function(event){
     event.preventDefault();
     event.stopPropagation();
+    console.debug('enter')
   },
 
   // `dropListener.onDragExit` fires when something has been moved away from
@@ -128,10 +117,11 @@ var dropListener = {
     event.stopPropagation();
   },
 
-  // `dropListener.onDrop` is the meat of this example. Initially the handler
-  // is stopping the event from propagating, after that it will proceed with
-  // processing whatever files were dropped onto the `div#dropbox` element.
-  onDrop: function(event){
+  // `dropListener.onDragDrop` is the meat of this example. Initially the
+  // handler is stopping the event from propagating, after that it will
+  // proceed with processing whatever files were dropped onto the
+  // `div#dropbox` element.
+  onDragDrop: function(event){
     event.preventDefault();
     event.stopPropagation();
 
@@ -193,5 +183,17 @@ var dropListener = {
     img.src = event.target.result;
   }
 };
+
+// ## Adding drag and drop event listeners
+
+// Use `dropbox.addEventListener` to add event handlers to the necessary drag
+// and drop events on the `div#dropbox` element. The second argument being
+// passed to `dropbox.addEventListener` in every case is a single
+// `EventListener` object, this object uses the `EventListener` interface to
+// dispatch the different events to the proper methods on the object.
+dropbox.addEventListener('dragenter', dropListener, false);
+dropbox.addEventListener('dragexit', dropListener, false);
+dropbox.addEventListener('dragover', dropListener, false);
+dropbox.addEventListener('drop', dropListener, false);
 
 // Piece of cake right?
