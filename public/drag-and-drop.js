@@ -1,20 +1,21 @@
-/*
+// Searching Google good examples of processing files with HTML5's drag and drop proved to be more difficult than I anticipated. This example exists to provide both a solid starting point for any other nerds looking to implement drag and drop as well as provide detailed contextual documentation for working with drag and drop events, the JavaScript `FileList` collection, and JavaScript `FileReader` objects.
 
-Since searching for good examples of Draging and Droping files using HTML5 proved to be more difficult than I anticpated I thought it would be nice to put this out there for others to use as a good starting point. **Currently this example only works on Google Chrome**
 
-This script expects a tiny bit of markup to subject it's event listening and DOM manipulation on:
+ //
+ // I thought it would be nice to put this out there for others to use as a good starting point. **Currently this example only works on Google Chrome**
+//
+// This script expects a tiny bit of markup to subject it's event listening and DOM manipulation on:
+//
+//     <div id="dropbox">
+//       <span id="droplabel">Drop file here...</span>
+//     </div>
+//
+//     <img id="preview" alt="[ preview will display here ]" />
+//
+// (You can see the full example in [this project's][] index.html for the full structure)
+//
+// The `div#dropbox` element will have our event listeners added to it and the `img#preview` element will have it's source updated to whatever image gets dropped onto the `div#dropbox`.
 
-    <div id="dropbox">
-      <span id="droplabel">Drop file here...</span>
-    </div>
-
-    <img id="preview" alt="[ preview will display here ]" />
-
-(You can see the full example in [this project's][] index.html for the full structure)
-
-The `div#dropbox` element will have our event listeners added to it and the `img#preview` element will have it's source updated to whatever image gets dropped onto the `div#dropbox`.
-
-*/
 
 // Use`document.getElementById` to get the elements. **Note** for this basic example there is no need to load all of jQuery to do basic queries, however if you are using jQuery this code is eqiuivelent to `var dropbox =  $('#dropbox')[0];` Notice we would be getting the zeroth element from the jQuery array in this case, doing this allows the use of `element.addEventListener`
 var dropbox = document.getElementById('dropbox');
