@@ -47,7 +47,7 @@ var dropbox = document.getElementById('dropbox');
 
 // ## Adding drag and drop event listeners
 
-// Use `dropbox.addEventListener` to add event handlers to the necessary drag and drop events on the `div#dropbox` element.
+// Use `dropbox.addEventListener` to add event handlers to the necessary drag and drop events on the `div#dropbox` element. The second argument being passed to `dropbox.addEventListener` in every case is a single `EventListener` object, this object uses the `EventListener` interface to dispatch the different events to the proper methods on the object.
 dropbox.addEventListener('dragenter', dropListener, false);
 dropbox.addEventListener('dragexit', dropListener, false);
 dropbox.addEventListener('dragover', dropListener, false);
